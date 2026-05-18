@@ -3,33 +3,1124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PharmaNexum</title>
+    <title>PharmaNexum - Ultimate Pharmacy Education & Career Portal</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- React & React DOM CDNs -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     
+    <!-- Babel Standalone for browser JSX compilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind CSS Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-x-hidden">
 
     <div id="root"></div>
 
     <script type="text/babel">
-    
-    // ==========================================
-    // PASTE ALL OF YOUR DASHBOARD CODE HERE
-    // (Everything starting from "import React..." down to the very end)
-    // ==========================================
+        const { useState, useEffect } = React;
 
-    // FINAL LINK: Add these lines at the absolute bottom of your script 
-    // to mount your App component into the page:
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-    
+        // Custom Lucide-equivalent Icon Component for lightweight, reliable offline/CDN execution
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const icons = {
+                LayoutDashboard: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="10" rx="1" />
+                        <rect width="7" height="5" x="3" y="14" rx="1" />
+                    </svg>
+                ),
+                BookOpen: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                ),
+                Award: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <circle cx="12" cy="8" r="7" />
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                    </svg>
+                ),
+                Briefcase: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        <rect width="20" height="14" x="2" y="6" rx="2" />
+                    </svg>
+                ),
+                Newspaper: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+                        <path d="M18 14h-8" />
+                        <path d="M15 18h-5" />
+                        <path d="M10 6h8v4h-8V6Z" />
+                    </svg>
+                ),
+                Users: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                ),
+                Activity: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                ),
+                Bell: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                ),
+                User: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                ),
+                Search: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                ),
+                PlayCircle: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <circle cx="12" cy="12" r="10" />
+                        <polygon points="10 8 16 12 10 16 10 8" />
+                    </svg>
+                ),
+                FileText: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M10 9H8" />
+                        <path d="M16 13H8" />
+                        <path d="M16 17H8" />
+                    </svg>
+                ),
+                Clock: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                ),
+                MapPin: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                ),
+                ChevronRight: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                ),
+                X: (
+                    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                )
+            };
+            return icons[name] || null;
+        };
+
+        // --- HIGH LEVEL APP STATE & MOCK DATA ---
+        const MOCK_DATA = {
+            stats: { testsTaken: 12, averageScore: '76%', rank: '2,401', jobsApplied: 3 },
+            studyMaterials: [
+                { 
+                    id: 1, 
+                    subject: 'Pharmacology', 
+                    title: 'Beta-Lactam Antibiotics', 
+                    type: 'video', 
+                    duration: '45 mins', 
+                    color: 'from-blue-400 to-blue-600',
+                    content: {
+                        introduction: "Beta-Lactams include Penicillins, Cephalosporins, Carbapenems, and Monobactams. They contain a highly strained 4-membered lactam ring essential for medicinal action.",
+                        mechanism: "They inhibit Peptidoglycan cell wall synthesis by binding covalently to Penicillin-Binding Proteins (PBPs), causing enzymatic activation of autolysins and subsequent cell lysis.",
+                        resistance: "Primary resistance mechanisms include the production of Beta-lactamases (enzymes that break down the ring) or modification of target PBPs (as seen in MRSA)."
+                    }
+                },
+                { 
+                    id: 2, 
+                    subject: 'Pharmaceutics', 
+                    title: 'Rheology Systems', 
+                    type: 'pdf', 
+                    pages: '12 pages', 
+                    color: 'from-teal-400 to-teal-600',
+                    content: {
+                        introduction: "Rheology is the study of flow behavior of materials under stress. Crucial in formulation designs of suspensions, emulsions, and semisolid ointments.",
+                        mechanism: "Newtonian systems exhibit constant viscosity regardless of shear rate. Non-Newtonian systems display Shear-Thinning (Pseudoplastic, e.g. Polymer mucilage), Shear-Thickening (Dilatant, e.g. starch paste), or Plastic behavior (Bingham plastic, e.g. toothpaste with yield value).",
+                        resistance: "Thixotropy is a highly desirable formulation trait: an isothermal, reversible transformation from gel-to-sol on shaking, enabling easy dispensing from containers and precise dose delivery."
+                    }
+                },
+                { 
+                    id: 3, 
+                    subject: 'Pharmacognosy', 
+                    title: 'Alkaloids Extraction', 
+                    type: 'video', 
+                    duration: '30 mins', 
+                    color: 'from-indigo-400 to-indigo-600',
+                    content: {
+                        introduction: "Alkaloids are basic nitrogenous compounds of plant origin, possessing profound physiological actions.",
+                        mechanism: "Extraction involves treating powdered crude drug with mild bases (ammonium hydroxide) to liberate free alkaloidal bases, followed by solvent partition with chloroform/ether. Acidification yields water-soluble salts.",
+                        resistance: "Key chemical tests: Mayer's reagent (creamy ppt), Dragendorff's reagent (reddish-brown ppt), Wagner's reagent (red-brown ppt), and Hager's reagent (yellow ppt)."
+                    }
+                },
+            ],
+            tests: [
+                { id: 1, title: 'GPAT Full-Length Mock 1', questions: 5, duration: '5 mins', category: 'Full Mock', status: 'Available' },
+                { id: 2, title: 'Pharmacology Subject-Wise', questions: 5, duration: '5 mins', category: 'Subject', status: 'Available' },
+                { id: 3, title: 'NIPER JEE Advanced', questions: 100, duration: '120 mins', category: 'Full Mock', status: 'Locked' },
+            ],
+            jobs: [
+                { id: 1, role: 'State Drug Inspector', company: 'Public Service Commission', location: 'Multiple Cities', type: 'Government', req: 'B.Pharm' },
+                { id: 2, role: 'Quality Assurance Officer', company: 'Sun Pharma', location: 'Vadodara, Gujarat', type: 'Corporate', req: 'M.Pharm (QA)' },
+                { id: 3, role: 'Clinical Pharmacist', company: 'Apollo Hospitals', location: 'New Delhi', type: 'Hospital', req: 'Pharm.D' },
+            ],
+            news: [
+                { id: 1, title: 'NTA Announces GPAT 2027 Registration Dates', date: '2 hours ago', tag: 'Exam Alert' },
+                { id: 2, title: 'FDA Approves Novel GLP-1 Therapy', date: '5 hours ago', tag: 'Industry News' },
+            ]
+        };
+
+        // Custom Mock Questions Database
+        const MOCK_QUESTIONS = [
+            {
+                q: "Which beta-lactam antibiotic possesses high resistance to beta-lactamases and is classified as a Carbapenem?",
+                options: ["Amoxicillin", "Meropenem", "Cefuroxime", "Aztreonam"],
+                correct: 1,
+                exp: "Meropenem is a carbapenem that resists most classical beta-lactamases due to its unique ring architecture."
+            },
+            {
+                q: "Which instrument is specifically used to measure the shear stress vs shear rate of non-Newtonian plastic systems?",
+                options: ["Ostwald Viscometer", "Falling Sphere Viscometer", "Cup and Bob Rotational Viscometer", "Pycnometer"],
+                correct: 2,
+                exp: "Multi-point rotational viscometers like Cup and Bob are required for non-Newtonian systems since their viscosity changes with shear."
+            },
+            {
+                q: "Mayer's reagent chemically consists of which of the following formulations?",
+                options: ["Potassium Bismuth Iodide", "Potassium Mercuric Iodide", "Iodine in Potassium Iodide", "Saturated Picric Acid"],
+                correct: 1,
+                exp: "Mayer's reagent is Potassium Mercuric Iodide, yielding a creamy precipitate with alkaloidal salts."
+            },
+            {
+                q: "What is the primary mechanism of action of the drug Methotrexate?",
+                options: ["Inhibition of Thymidylate Synthase", "Inhibition of Dihydrofolate Reductase", "Direct DNA Alkylation", "Microtubule Disassembly"],
+                correct: 1,
+                exp: "Methotrexate competitively inhibits Dihydrofolate Reductase (DHFR), blocking the reduction of folic acid to active THF."
+            },
+            {
+                q: "Which diagnostic enzyme acts as a definitive clinical marker for acute pancreatitis?",
+                options: ["Alanine Aminotransferase", "Amylase and Lipase", "Creatine Kinase", "Alkaline Phosphatase"],
+                correct: 1,
+                exp: "Serum Lipase and Amylase levels rise rapidly within hours of acute pancreatitis onset, with Lipase being more specific."
+            }
+        ];
+
+        // --- MAIN APP CONTAINER ---
+        export default function App() {
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+            const [loadingTab, setLoadingTab] = useState(false);
+            const [activeModal, setActiveModal] = useState(null);
+            
+            // Interactive Features States
+            const [activeExam, setActiveExam] = useState(null); // When exam is active
+            const [activeStudy, setActiveStudy] = useState(null); // When slide viewer is active
+            const [activeApplyJob, setActiveApplyJob] = useState(null); // Job application overlay
+
+            // Simulate smooth loading when switching tabs
+            const handleTabChange = (tab) => {
+                setLoadingTab(true);
+                setActiveTab(tab);
+                setIsSidebarOpen(false);
+                setTimeout(() => setLoadingTab(false), 300);
+            };
+
+            const renderContent = () => {
+                if (loadingTab) {
+                    return (
+                        <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                            <p className="text-slate-500 font-medium text-sm mt-3">Syncing educational nodes...</p>
+                        </div>
+                    );
+                }
+                switch (activeTab) {
+                    case 'dashboard': return <DashboardView onTabChange={handleTabChange} openStudy={setActiveStudy} />;
+                    case 'study': return <StudyView openStudy={setActiveStudy} />;
+                    case 'tests': return <TestView openModal={setActiveModal} />;
+                    case 'jobs': return <JobView openApply={setActiveApplyJob} />;
+                    case 'news': return <NewsView />;
+                    default: return <DashboardView onTabChange={handleTabChange} openStudy={setActiveStudy} />;
+                }
+            };
+
+            return (
+                <div className="flex h-screen bg-[#F8FAFC] text-slate-800 font-sans overflow-hidden selection:bg-blue-200">
+                    
+                    {/* Sidebar Navigation */}
+                    <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 shadow-xl md:shadow-none transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                        <div className="h-20 flex items-center px-6 border-b border-slate-100 justify-between">
+                            <div className="flex items-center">
+                                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-teal-400 flex items-center justify-center mr-3 shadow-md">
+                                    <Icon name="Activity" className="text-white w-5 h-5" />
+                                </div>
+                                <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-teal-500">
+                                    PharmaNexum
+                                </h1>
+                            </div>
+                            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-slate-400 hover:text-slate-600">
+                                <Icon name="X" size={20} />
+                            </button>
+                        </div>
+                        
+                        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                            <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Engines</p>
+                            <NavItem icon={<Icon name="LayoutDashboard" size={20} />} label="Dashboard" isActive={activeTab === 'dashboard'} onClick={() => handleTabChange('dashboard')} />
+                            <NavItem icon={<Icon name="BookOpen" size={20} />} label="Academic Library" isActive={activeTab === 'study'} onClick={() => handleTabChange('study')} />
+                            <NavItem icon={<Icon name="Award" size={20} />} label="Test Series" isActive={activeTab === 'tests'} onClick={() => handleTabChange('tests')} />
+                            <NavItem icon={<Icon name="Briefcase" size={20} />} label="Career Portal" isActive={activeTab === 'jobs'} onClick={() => handleTabChange('jobs')} />
+                            <NavItem icon={<Icon name="Newspaper" size={20} />} label="News & Community" isActive={activeTab === 'news'} onClick={() => handleTabChange('news')} />
+                        </nav>
+
+                        <div className="p-4 border-t border-slate-100 m-4 rounded-xl bg-slate-50">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold border border-blue-200">
+                                    PS
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-800">Demo Candidate</p>
+                                    <p className="text-xs text-blue-600 font-semibold">B.Pharm Enrolled</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+                        {/* Header */}
+                        <header className="h-20 glass-panel border-b border-slate-200 flex items-center justify-between px-4 md:px-8 z-10">
+                            <div className="flex items-center md:hidden">
+                                <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                </button>
+                                <h1 className="text-lg font-bold text-blue-900 ml-2">PharmaNexum</h1>
+                            </div>
+                            
+                            <div className="hidden md:block">
+                                <h2 className="text-lg font-bold text-slate-800 capitalize">{activeTab === 'study' ? 'Academic Engine' : activeTab}</h2>
+                            </div>
+
+                            <div className="flex items-center space-x-4">
+                                <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition">
+                                    <Icon name="Bell" size={20} />
+                                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                                </button>
+                                <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
+                                <span className="text-sm font-semibold text-slate-600 hidden md:block">Active Prep State</span>
+                            </div>
+                        </header>
+
+                        {/* Scrollable Content */}
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#F8FAFC]">
+                            <div className="max-w-6xl mx-auto animate-fade-in">
+                                {renderContent()}
+                            </div>
+                        </div>
+
+                        {/* Modal Confirmation Overlay */}
+                        {activeModal && (
+                            <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                        <h3 className="text-lg font-bold text-slate-800">{activeModal.title}</h3>
+                                        <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+                                            <Icon name="X" size={24} />
+                                        </button>
+                                    </div>
+                                    <div className="p-6">
+                                        <p className="text-slate-600 mb-6">You are launching a live mock evaluation containing {activeModal.questions} questions covering core pharmacotherapy, formulations, and pharmacognosy test grids.</p>
+                                        <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6">
+                                            <p className="text-xs text-blue-700 font-semibold flex items-center">
+                                                <Icon name="Activity" size={16} className="mr-2"/> Live monitoring and timer sequence will initiate immediately.
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={() => setActiveModal(null)} className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition">
+                                                Cancel
+                                            </button>
+                                            <button onClick={() => { setActiveExam(activeModal); setActiveModal(null); }} className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                                                Begin Exam
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* EXAMINATION PLAYER WINDOW */}
+                        {activeExam && (
+                            <ExamPlayer test={activeExam} onClose={() => setActiveExam(null)} />
+                        )}
+
+                        {/* STUDY NOTES READER VIEW */}
+                        {activeStudy && (
+                            <StudyReader module={activeStudy} onClose={() => setActiveStudy(null)} />
+                        )}
+
+                        {/* CAREER RECRUITMENT APPLICATION MODAL */}
+                        {activeApplyJob && (
+                            <JobApplyModal job={activeApplyJob} onClose={() => setActiveApplyJob(null)} />
+                        )}
+                    </main>
+
+                    {/* Mobile Sidebar Overlay */}
+                    {isSidebarOpen && (
+                        <div className="fixed inset-0 bg-slate-800/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+                    )}
+                </div>
+            );
+        }
+
+        // --- SUB-VIEWS ---
+
+        function DashboardView({ onTabChange, openStudy }) {
+            return (
+                <div className="space-y-8 pb-10">
+                    <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-900/10 relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h2 className="text-3xl font-extrabold mb-2">Ready to conquer GPAT & NIPER?</h2>
+                            <p className="text-blue-100 max-w-lg text-lg">Your diagnostic score is improving. Keep up the momentum with today's high-yield pharmacology module.</p>
+                            <button onClick={() => onTabChange('study')} className="mt-6 px-6 py-3 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg inline-flex items-center">
+                                <Icon name="PlayCircle" className="mr-2" size={20} /> Access Lecture Notes
+                            </button>
+                        </div>
+                        {/* Decorative elements */}
+                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        <StatCard title="Mock Tests" value={MOCK_DATA.stats.testsTaken} icon={<Icon name="Award" className="text-blue-600" />} trend="+2 this week" />
+                        <StatCard title="Avg Score" value={MOCK_DATA.stats.averageScore} icon={<Icon name="Activity" className="text-emerald-500" />} trend="Top 15%" />
+                        <StatCard title="All India Rank" value={MOCK_DATA.stats.rank} icon={<Icon name="Users" className="text-purple-500" />} trend="Improved" />
+                        <StatCard title="Jobs Applied" value={MOCK_DATA.stats.jobsApplied} icon={<Icon name="Briefcase" className="text-orange-500" />} trend="1 Interview" />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xl font-bold text-slate-800">Continue Learning</h3>
+                                <button onClick={() => onTabChange('study')} className="text-blue-600 text-sm font-semibold hover:underline">View All</button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {MOCK_DATA.studyMaterials.slice(0, 2).map(item => (
+                                    <div key={item.id} onClick={() => openStudy(item)} className="group bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer">
+                                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white mb-4 shadow-md`}>
+                                            {item.type === 'video' ? <Icon name="PlayCircle" size={24} /> : <Icon name="FileText" size={24} />}
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{item.subject}</span>
+                                        <h4 className="font-bold text-slate-800 mt-1 text-lg leading-tight group-hover:text-blue-600 transition">{item.title}</h4>
+                                        <p className="text-xs text-blue-600 font-semibold mt-2">Click to Open Study Deck</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xl font-bold text-slate-800">Recent Alerts</h3>
+                            </div>
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <div className="space-y-5">
+                                    {MOCK_DATA.news.map(item => (
+                                        <div key={item.id} className="border-l-2 border-blue-500 pl-4 relative">
+                                            <div className="absolute w-2 h-2 bg-blue-500 rounded-full -left-[5px] top-1.5 ring-4 ring-white"></div>
+                                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{item.tag}</span>
+                                            <p className="font-semibold text-slate-800 mt-2 text-sm leading-snug hover:text-blue-600 cursor-pointer">{item.title}</p>
+                                            <p className="text-xs text-slate-400 mt-1">{item.date}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => onTabChange('news')} className="w-full mt-6 py-2.5 bg-slate-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-slate-100 transition">
+                                    View All Updates
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function StudyView({ openStudy }) {
+            const [searchTerm, setSearchTerm] = useState('');
+
+            const filteredMaterials = MOCK_DATA.studyMaterials.filter(item => 
+                item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                item.subject.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            return (
+                <div className="space-y-8 animate-fade-in pb-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-800">Academic Library</h2>
+                            <p className="text-slate-500 text-sm mt-1">Master core subjects with curated notes and lecture templates.</p>
+                        </div>
+                        <div className="relative w-full md:w-72">
+                            <Icon name="Search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+                            <input 
+                                type="text" 
+                                placeholder="Search topics, drugs..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-blue-500 transition shadow-inner" 
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {['Pharmaceutics', 'Pharmacology', 'Chemistry', 'Pharmacognosy', 'Clinical'].map((subject) => (
+                           <div key={subject} onClick={() => setSearchTerm(subject)} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-blue-200 transition cursor-pointer text-center group">
+                                <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                                    <Icon name="BookOpen" size={20} />
+                                </div>
+                                <h3 className="font-bold text-slate-800 text-xs">{subject}</h3>
+                           </div>
+                        ))}
+                    </div>
+
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-slate-800">Interactive Learning Modules</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {filteredMaterials.map(item => (
+                                <div key={item.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition group">
+                                    <div className={`h-24 bg-gradient-to-r ${item.color} p-4 flex items-end relative overflow-hidden`}>
+                                        <div className="absolute -right-4 -top-4 opacity-20 transform rotate-12">
+                                            {item.type === 'video' ? <Icon name="PlayCircle" size={100} /> : <Icon name="FileText" size={100} />}
+                                        </div>
+                                        <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">
+                                            {item.subject}
+                                        </span>
+                                    </div>
+                                    <div className="p-5">
+                                        <h4 className="font-bold text-slate-800 text-lg leading-tight mb-2 group-hover:text-blue-600 transition">{item.title}</h4>
+                                        <p className="text-xs text-slate-400 mb-4">Complete review module containing structural activity, formulations, and tests.</p>
+                                        <div className="flex items-center justify-between text-sm text-slate-500 mt-4 pt-4 border-t border-slate-50">
+                                            <span className="flex items-center bg-slate-50 px-2 py-1 rounded-md">
+                                                <Icon name="Clock" size={14} className="mr-1.5"/> {item.duration || item.pages}
+                                            </span>
+                                            <button onClick={() => openStudy(item)} className="text-blue-600 font-bold hover:underline flex items-center">
+                                                Open Deck <Icon name="ChevronRight" size={16} className="ml-1"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {filteredMaterials.length === 0 && (
+                                <p className="col-span-full text-center py-10 text-slate-400 font-medium">No pharmacy elements found matching search.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function TestView({ openModal }) {
+            return (
+                <div className="space-y-8 animate-fade-in pb-10">
+                    <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+                        <div className="relative z-10 w-full md:w-2/3">
+                            <span className="text-teal-400 text-xs font-bold tracking-widest uppercase mb-2 block">AI Performance Diagnostic</span>
+                            <h3 className="text-2xl font-bold mb-2">Pharmacology is your strongest subject!</h3>
+                            <p className="text-slate-300 text-sm">You scored 82% in your last clinical trial mock. However, your response accuracy in Pharmacognosy alkaloids synthesis dropped to 41%. We recommend taking subject-wise revisions to recover.</p>
+                        </div>
+                        <div className="relative z-10 mt-6 md:mt-0 w-full md:w-auto shrink-0">
+                            <button className="w-full md:w-auto bg-teal-500 text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-teal-400 transition shadow-lg shadow-teal-500/30">
+                                View Full Metrics
+                            </button>
+                        </div>
+                        {/* Pattern design */}
+                        <div className="absolute inset-0 opacity-10" style={{backgroundSize: '20px 20px', backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)'}}></div>
+                    </div>
+
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        {['All Available Tests', 'GPAT Mocks', 'Subject-Wise Prep', 'NIPER Trials'].map((tab, i) => (
+                            <button key={tab} className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${i === 0 ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="space-y-4">
+                        {MOCK_DATA.tests.map(test => (
+                            <div key={test.id} className="bg-white p-5 md:p-6 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-between shadow-sm hover:shadow-md transition">
+                                <div className="flex items-center w-full md:w-auto mb-4 md:mb-0">
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mr-5 shrink-0 ${test.status === 'Locked' ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-600'}`}>
+                                        <Icon name="Award" size={28} />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <h4 className="font-bold text-lg text-slate-800">{test.title}</h4>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2 py-1 rounded-md">{test.category}</span>
+                                        </div>
+                                        <div className="flex items-center text-sm font-medium text-slate-500 space-x-4">
+                                            <span className="flex items-center"><Icon name="FileText" size={16} className="mr-1.5"/> {test.questions} Qs</span>
+                                            <span className="flex items-center"><Icon name="Clock" size={16} className="mr-1.5"/> {test.duration}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="w-full md:w-auto shrink-0">
+                                    {test.status === 'Locked' ? (
+                                         <button className="w-full md:w-auto px-6 py-2.5 rounded-xl font-bold text-slate-400 bg-slate-50 border border-slate-200 cursor-not-allowed">Premium Required</button>
+                                    ) : (
+                                        <button onClick={() => openModal(test)} className="w-full md:w-auto px-8 py-2.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all transform hover:-translate-y-0.5">
+                                            Launch Exam
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function JobView({ openApply }) {
+            const [searchQuery, setSearchQuery] = useState('');
+            const [selectedType, setSelectedType] = useState('All Jobs');
+
+            const filteredJobs = MOCK_DATA.jobs.filter(job => {
+                const matchesSearch = job.role.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      job.company.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesType = selectedType === 'All Jobs' || job.type === selectedType;
+                return matchesSearch && matchesType;
+            });
+
+            return (
+                <div className="space-y-8 animate-fade-in pb-10">
+                    <div className="bg-white p-2 border border-slate-200 rounded-2xl shadow-sm flex flex-col md:flex-row">
+                        <div className="flex-1 flex items-center px-4 py-2 border-b md:border-b-0 md:border-r border-slate-100">
+                            <Icon name="Search" className="text-blue-500 mr-3 shrink-0" size={20} />
+                            <input 
+                                type="text" 
+                                placeholder="Job title, keywords..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full py-2 bg-transparent border-none focus:outline-none text-slate-700 font-medium" 
+                            />
+                        </div>
+                        <div className="flex-1 flex items-center px-4 py-2">
+                            <Icon name="MapPin" className="text-blue-500 mr-3 shrink-0" size={20} />
+                            <span className="text-slate-400 font-medium">Pan India Active Filter</span>
+                        </div>
+                        <button className="m-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md shrink-0">Find Jobs</button>
+                    </div>
+
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        {['All Jobs', 'Government', 'Corporate', 'Hospital'].map((type) => (
+                            <button 
+                                key={type} 
+                                onClick={() => setSelectedType(type)}
+                                className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${selectedType === type ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {filteredJobs.map(job => (
+                            <div key={job.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-300 transition group cursor-pointer flex flex-col justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mr-4 shrink-0">
+                                                <Icon name="Briefcase" className="text-blue-600" size={24}/>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-lg text-slate-800 leading-tight group-hover:text-blue-600 transition">{job.role}</h4>
+                                                <p className="text-slate-500 font-medium text-sm mt-0.5">{job.company}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        <span className={`text-xs px-3 py-1 rounded-full font-bold ${job.type === 'Government' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            {job.type}
+                                        </span>
+                                        <span className="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-600 flex items-center">
+                                            <Icon name="MapPin" size={12} className="mr-1"/> {job.location}
+                                        </span>
+                                        <span className="text-xs px-3 py-1 rounded-full font-bold bg-emerald-50 text-emerald-700">
+                                             Degree: {job.req}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-slate-100 flex justify-between items-center mt-4">
+                                   <span className="text-xs font-semibold text-slate-400">Apply instantly with validation</span>
+                                   <span onClick={() => openApply(job)} className="text-blue-600 font-bold text-sm flex items-center group-hover:translate-x-1 transition-transform">
+                                     Apply Now <Icon name="ChevronRight" size={16} className="ml-1" />
+                                   </span>
+                                </div>
+                            </div>
+                        ))}
+                        {filteredJobs.length === 0 && (
+                            <p className="col-span-full text-center py-10 text-slate-400 font-medium">No pharmacy roles match your criteria.</p>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function NewsView() {
+            return (
+                <div className="space-y-8 animate-fade-in pb-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        {/* News Feed */}
+                        <div className="space-y-5">
+                            <h3 className="text-xl font-bold text-slate-800 flex items-center"><Icon name="Newspaper" className="mr-2 text-blue-600" /> Pharmacy Feed</h3>
+                            {MOCK_DATA.news.map(item => (
+                                <div key={item.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer flex gap-4">
+                                    <div className="w-24 h-24 bg-slate-100 rounded-xl flex-shrink-0 flex items-center justify-center text-slate-300">
+                                        <Icon name="Newspaper" size={32} />
+                                    </div>
+                                    <div className="flex flex-col justify-center">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 w-max px-2 py-1 rounded-md mb-2">{item.tag}</span>
+                                        <h4 className="font-bold text-slate-800 leading-snug hover:text-blue-600 transition">{item.title}</h4>
+                                        <p className="text-xs text-slate-400 mt-2">{item.date} • 3 min read</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Community Forum */}
+                        <div className="space-y-5">
+                            <h3 className="text-xl font-bold text-slate-800 flex items-center"><Icon name="Users" className="mr-2 text-blue-600" /> Peer Discussions</h3>
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                                    <span className="text-sm font-bold text-slate-600">Trending Topics</span>
+                                    <button className="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200 transition">+ Ask Query</button>
+                                </div>
+                                {[
+                                    { q: "Best resource for Organic Chemistry GPAT?", user: "PharmNinja", replies: 14, time: "1h ago" },
+                                    { q: "Is NIPER Mohali better for QA or F&D?", user: "StudyBot99", replies: 32, time: "3h ago" },
+                                    { q: "Doubt in Non-Newtonian Rheology formula", user: "BioMedKid", replies: 5, time: "5h ago" }
+                                ].map((forum, i) => (
+                                    <div key={i} className="p-5 border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer transition">
+                                        <h5 className="font-bold text-slate-800 mb-2">{forum.q}</h5>
+                                        <div className="flex items-center justify-between mt-2">
+                                            <div className="flex items-center text-xs text-slate-500 font-medium">
+                                                <div className="w-5 h-5 bg-slate-200 rounded-full mr-2"></div>
+                                                {forum.user}
+                                            </div>
+                                            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
+                                                <span className="flex items-center"><Icon name="Users" size={14} className="mr-1"/> {forum.replies}</span>
+                                                <span>{forum.time}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- SUB-FEATURES / MODAL WORKFLOWS (INTERACTIVE ENGINES) ---
+
+        // 1. Examination Player Component
+        function ExamPlayer({ test, onClose }) {
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [selectedAnswers, setSelectedAnswers] = useState({});
+            const [examSubmitted, setExamSubmitted] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(300); // 5 minutes standard timer
+
+            useEffect(() => {
+                if (examSubmitted || timeLeft <= 0) return;
+                const timer = setInterval(() => {
+                    setTimeLeft(prev => prev - 1);
+                }, 1000);
+                return () => clearInterval(timer);
+            }, [timeLeft, examSubmitted]);
+
+            const handleAnswerSelect = (optionIdx) => {
+                if (examSubmitted) return;
+                setSelectedAnswers({
+                    ...selectedAnswers,
+                    [currentQIndex]: optionIdx
+                });
+            };
+
+            const calculateResults = () => {
+                let correctCount = 0;
+                MOCK_QUESTIONS.forEach((q, idx) => {
+                    if (selectedAnswers[idx] === q.correct) {
+                        correctCount++;
+                    }
+                });
+                return {
+                    correct: correctCount,
+                    total: MOCK_QUESTIONS.length,
+                    percentage: Math.round((correctCount / MOCK_QUESTIONS.length) * 100)
+                };
+            };
+
+            const progressPercentage = Math.round(((currentQIndex + 1) / MOCK_QUESTIONS.length) * 100);
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            };
+
+            return (
+                <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col animate-fade-in text-slate-100">
+                    {/* Exam Header */}
+                    <div className="bg-slate-850 border-b border-slate-800 p-4 flex justify-between items-center px-6 md:px-12 shrink-0">
+                        <div>
+                            <span className="text-teal-400 text-xs font-bold uppercase tracking-wider">Evaluation Engine Active</span>
+                            <h3 className="text-lg font-bold text-white">{test.title}</h3>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl flex items-center gap-2">
+                                <Icon name="Clock" size={16} className="text-amber-400" />
+                                <span className="font-mono font-bold text-amber-400">{examSubmitted ? "Exam Suspended" : formatTime(timeLeft)}</span>
+                            </div>
+                            <button onClick={onClose} className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white">
+                                <Icon name="X" size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Progress Slider */}
+                    <div className="w-full bg-slate-800 h-1">
+                        <div className="bg-blue-500 h-1 transition-all duration-300" style={{width: `${progressPercentage}%`}}></div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="flex-1 overflow-y-auto p-6 md:p-12 flex items-center justify-center">
+                        <div className="max-w-2xl w-full bg-slate-800/50 border border-slate-800 p-6 md:p-10 rounded-2xl shadow-xl">
+                            {!examSubmitted ? (
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center text-xs text-slate-400 font-bold uppercase tracking-wider">
+                                        <span>Question {currentQIndex + 1} of {MOCK_QUESTIONS.length}</span>
+                                        <span className="bg-blue-900/40 text-blue-400 border border-blue-900 px-2 py-0.5 rounded-md">High Yield Pharmacology</span>
+                                    </div>
+                                    <h4 className="text-xl font-bold leading-relaxed text-white">
+                                        {MOCK_QUESTIONS[currentQIndex].q}
+                                    </h4>
+                                    <div className="space-y-3 pt-4">
+                                        {MOCK_QUESTIONS[currentQIndex].options.map((opt, i) => {
+                                            const isSelected = selectedAnswers[currentQIndex] === i;
+                                            return (
+                                                <button 
+                                                    key={i} 
+                                                    onClick={() => handleAnswerSelect(i)}
+                                                    className={`w-full text-left p-4 rounded-xl border transition flex items-center justify-between ${
+                                                        isSelected 
+                                                            ? 'bg-blue-600 border-blue-500 text-white' 
+                                                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700/50'
+                                                    }`}
+                                                >
+                                                    <span className="font-medium text-sm md:text-base">{opt}</span>
+                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-white bg-white' : 'border-slate-500'}`}>
+                                                        {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center space-y-6 py-6">
+                                    <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/5 mb-4">
+                                        <Icon name="Award" size={44} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-white">Mock Submission Complete</h3>
+                                    <div className="grid grid-cols-3 gap-4 max-w-md mx-auto py-4">
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                            <p className="text-xs text-slate-400">Score</p>
+                                            <p className="text-2xl font-bold text-emerald-400">{calculateResults().percentage}%</p>
+                                        </div>
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                            <p className="text-xs text-slate-400">Correct</p>
+                                            <p className="text-2xl font-bold text-white">{calculateResults().correct}/{calculateResults().total}</p>
+                                        </div>
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                            <p className="text-xs text-slate-400">Time Taken</p>
+                                            <p className="text-2xl font-bold text-blue-400">{formatTime(300 - timeLeft)}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Question Analysis Review */}
+                                    <div className="text-left space-y-4 pt-6 max-h-60 overflow-y-auto pr-2 scrollbar-hide">
+                                        <h4 className="font-bold text-slate-300">Detailed Explanatory Diagnostics</h4>
+                                        {MOCK_QUESTIONS.map((q, idx) => {
+                                            const wasCorrect = selectedAnswers[idx] === q.correct;
+                                            return (
+                                                <div key={idx} className="bg-slate-800 p-4 rounded-xl border border-slate-700 text-xs">
+                                                    <p className="font-bold text-slate-200 mb-1">Q{idx+1}: {q.q}</p>
+                                                    <p className={`font-semibold ${wasCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                        {wasCorrect ? "✓ Correct Answer Selected" : `✗ Incorrect (Selected: ${q.options[selectedAnswers[idx]] || 'None'})`}
+                                                    </p>
+                                                    <p className="text-slate-400 mt-2 font-medium bg-slate-900/50 p-2 rounded leading-relaxed">{q.exp}</p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Navigation Footer */}
+                    <div className="bg-slate-850 border-t border-slate-800 p-4 flex justify-between items-center px-6 md:px-12 shrink-0">
+                        {!examSubmitted ? (
+                            <React.Fragment>
+                                <button 
+                                    onClick={() => setCurrentQIndex(prev => Math.max(0, prev - 1))}
+                                    disabled={currentQIndex === 0}
+                                    className="px-6 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    Previous
+                                </button>
+                                {currentQIndex < MOCK_QUESTIONS.length - 1 ? (
+                                    <button 
+                                        onClick={() => setCurrentQIndex(prev => prev + 1)}
+                                        className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition"
+                                    >
+                                        Next Question
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={() => setExamSubmitted(true)}
+                                        className="px-8 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-500 transition shadow-lg shadow-emerald-500/20 animate-pulse"
+                                    >
+                                        Submit Exam
+                                    </button>
+                                )}
+                            </React.Fragment>
+                        ) : (
+                            <button 
+                                onClick={onClose}
+                                className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition text-center"
+                            >
+                                Finish Review & Exit
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // 2. Study Reader Sub-Component
+        function StudyReader({ module, onClose }) {
+            return (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <div>
+                                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">{module.subject} Revision Deck</span>
+                                <h3 className="text-xl font-bold text-slate-800">{module.title}</h3>
+                            </div>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100">
+                                <Icon name="X" size={24} />
+                            </button>
+                        </div>
+                        <div className="p-6 md:p-8 overflow-y-auto space-y-6">
+                            <div className="space-y-2">
+                                <h4 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">01. Conceptual Overview</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">{module.content.introduction}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <h4 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">02. Mechanism & Chemical Target Metrics</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">{module.content.mechanism}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <h4 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">03. High-Yield Identification & Tests</h4>
+                                <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">{module.content.resistance}</p>
+                            </div>
+                        </div>
+                        <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                            <span className="text-xs font-bold text-slate-400">Total study index: Verified GPAT Syllabus 2027</span>
+                            <button onClick={onClose} className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition">
+                                Complete Module
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // 3. Job Apply Modal Sub-Component
+        function JobApplyModal({ job, onClose }) {
+            const [submitted, setSubmitted] = useState(false);
+            const [candDegree, setCandDegree] = useState('B.Pharm');
+
+            const handleFormSubmit = (e) => {
+                e.preventDefault();
+                setSubmitted(true);
+            };
+
+            const qualificationMatches = candDegree === job.req || (candDegree === 'M.Pharm (QA)' && job.req === 'B.Pharm') || job.req === 'B.Pharm';
+
+            return (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <div>
+                                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Verify & Apply</span>
+                                <h3 className="text-lg font-bold text-slate-800">{job.role}</h3>
+                            </div>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg">
+                                <Icon name="X" size={24} />
+                            </button>
+                        </div>
+                        
+                        {!submitted ? (
+                            <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Verification Profile Profile Degree</label>
+                                    <select 
+                                        value={candDegree}
+                                        onChange={(e) => setCandDegree(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="B.Pharm">Bachelor of Pharmacy (B.Pharm)</option>
+                                        <option value="M.Pharm (QA)">Master of Pharmacy (M.Pharm QA)</option>
+                                        <option value="Pharm.D">Doctor of Pharmacy (Pharm.D)</option>
+                                    </select>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs text-slate-500 space-y-2">
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Job Prerequisite:</span>
+                                        <span className="text-slate-800">{job.req}</span>
+                                    </div>
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Candidate Qualification:</span>
+                                        <span className="text-slate-800">{candDegree}</span>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                                        <span>System Eligibility Check:</span>
+                                        {qualificationMatches ? (
+                                            <span className="text-emerald-600 font-bold uppercase">Pass ✓</span>
+                                        ) : (
+                                            <span className="text-amber-600 font-bold uppercase">Manual Review Needed ⚠</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Contact/Phone Number</label>
+                                    <input required type="tel" placeholder="+91 98765 43210" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Resume Link / Profile URL</label>
+                                    <input required type="url" placeholder="https://linkedin.com/in/yourname" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+
+                                <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 mt-4">
+                                    Submit Profile Application
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="p-8 text-center space-y-4">
+                                <div className="w-16 h-16 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full flex items-center justify-center mx-auto">
+                                    <Icon name="Activity" size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-800">Application Submitted!</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed">
+                                    Your candidacy validation report has been generated. The recruitment officer at <strong className="text-slate-700">{job.company}</strong> has received your contact sheet and matching degree certifications.
+                                </p>
+                                <button onClick={onClose} className="w-full py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition">
+                                    Return to Job Portal
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- GENERAL UI COMPONENT WRAPPERS ---
+
+        function NavItem({ icon, label, isActive, onClick }) {
+            return (
+                <button 
+                    onClick={onClick}
+                    className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 text-sm font-bold ${
+                        isActive 
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
+                            : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
+                    }`}
+                >
+                    <span className={`mr-3 ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                        {icon}
+                    </span>
+                    {label}
+                </button>
+            );
+        }
+
+        function StatCard({ title, value, icon, trend }) {
+            return (
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition duration-300">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">{icon}</div>
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">{trend}</span>
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-extrabold text-slate-800">{value}</h3>
+                        <p className="text-sm font-semibold text-slate-500 mt-1">{title}</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- FINAL RENDERING MOUNT ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
